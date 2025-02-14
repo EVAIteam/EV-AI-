@@ -1,0 +1,62 @@
+EV Import
+
+class EVCoin:
+    def __init__(self, name, initial_supply, staking_reward_rate, prediction_reward_rate):
+        self.name = name
+        self.total_supply = initial_supply
+        self.staking_reward_rate = staking_reward_rate
+        self.prediction_reward_rate = prediction_reward_rate
+        self.holders = {}
+
+    def calculate_ev(self, probability, outcome):
+        return probability * outcome
+
+    def stake(self, address, amount):
+        if address in self.holders and self.holders[address] >= amount:
+            self.holders[address] -= amount
+            reward = amount * self.staking_reward_rate
+            self.holders[address] += reward
+            self.total_supply += reward
+        else:
+            raise ValueError("Insufficient balance to stake")
+
+    def predict_and_reward(self, address, probability, outcome):
+        ev = self.calculate_ev(probability, outcome)
+        reward = ev * self.prediction_reward_rate
+        if address in self.holders:
+            self.holders[address] += reward
+        else:
+            self.holders[address] = reward
+        self.total_supply += reward
+
+    def add_holder(self, address, amount):
+        if address in self.holders:
+            self.holders[address] += amount
+        else:
+            self.holders[address] = amount
+
+    def get_balance(self, address):
+        return self.holders.get(address, 0)
+
+    def get_total_supply(self):
+        return self.total_supply
+
+# Example Usage
+ev_coin = EVCoin(name="EV Coin", initial_supply=1000000, staking_reward_rate=0.05, prediction_reward_rate=0.10)
+
+# Adding initial holders
+ev_coin.add_holder("holder1", 1000)
+ev_coin.add_holder("holder2", 500)
+
+# Staking
+ev_coin.stake("holder1", 500)
+
+# Prediction and Reward
+probability = 0.7
+outcome = 100
+ev_coin.predict_and_reward("holder2", probability, outcome)
+
+# Checking balances
+print(f"Holder1 Balance: {ev_coin.get_balance('holder1')}")
+print(f"Holder2 Balance: {ev_coin.get_balance('holder2')}")
+print(f"Total Supply: {ev_coin.get_total_supply()}")
